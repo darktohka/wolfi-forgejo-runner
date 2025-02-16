@@ -1,0 +1,44 @@
+#!/bin/bash
+set -e
+
+# Check if all three arguments are provided
+if [[ "$#" -lt 2 ]]; then
+    echo "Usage: $0 <username> <password> [hostname]"
+    exit 1
+fi
+
+# Set the arguments to variables
+username=$1
+password=$2
+hostname=$3
+
+if [[ -z "$hostname" ]]; then
+    hostname=https://index.docker.io/v1/
+fi
+
+# Create a temporary file to save the config
+temp_file=$(mktemp)
+
+if ! [[ -f "$temp_file" ]]; then
+    echo "Failed to create temporary file."
+    exit 1
+fi
+
+# Create the Docker folder
+docker_folder=~/.docker
+mkdir -p "$docker_folder"
+
+docker_config_file="$docker_folder"/config.json
+
+if [[ -f "$docker_config_file" ]] && jq -e . "$docker_config_file" >/dev/null 2>&1; then
+    # Read the existing configuration
+    args="$docker_config_file"
+else
+    # Create a new configuration
+    args="-n"
+fi
+
+# Add the new Docker entry
+jq --arg hostname "$hostname" --arg username "$username" --arg password "$password" \
+    '. + {"auths": (.auths + {($hostname): { "auth": "\($username):\($password)" | @base64 } } ) }' $args > "$temp_file"
+mv "$temp_file" "$docker_config_file"

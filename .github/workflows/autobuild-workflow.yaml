@@ -1,0 +1,28 @@
+name: Build container
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  push:
+  workflow_dispatch:
+  repository_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm,arm64
+      - name: Set up Buildkit
+        uses: docker/setup-buildx-action@v3
+      - name: Login to registry
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Build the image
+        run: |
+          docker buildx build --push \
+            --tag "${{ secrets.DOCKER_TAG }}:latest" \
+            --platform linux/amd64,linux/arm64,linux/arm/v7 .
