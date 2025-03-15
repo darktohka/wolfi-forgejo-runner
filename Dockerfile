@@ -20,6 +20,24 @@ RUN \
   cd buildkit && \
   go build -ldflags "-s -w" ./cmd/buildctl
 
+FROM chainguard/wolfi-base AS proot
+
+RUN \
+  apk add clang make curl python3 pkgconf git \
+  && cd /tmp \
+  && apk add python3 pkgconf \
+  && curl -SsL https://www.samba.org/ftp/talloc/talloc-2.4.3.tar.gz | tar -xz \
+  && cd talloc-* \
+  && ./configure build  --disable-rpath --disable-python \
+  && mkdir -p /usr/local/lib /usr/local/include /usr/lib/pkgconfig \
+  && ar rcs /usr/local/lib/libtalloc.a bin/default/talloc*.o \
+  && cp -f talloc.h /usr/local/include \
+  && cp bin/default/talloc.pc /usr/lib/pkgconfig/ \
+  && git clone https://github.com/darktohka/proot \
+  && cd proot \
+  && make -C src loader.elf loader-m32.elf build.h \
+  && make -C src proot
+
 FROM chainguard/wolfi-base
 
 RUN \
@@ -31,4 +49,5 @@ RUN \
   for version in $NODE_ALT_VERSIONS; do ln -s /opt/acttoolcache/node/${NODE_VERSION} /opt/acttoolcache/node/${version}; done
 
 COPY --from=buildctl /tmp/buildkit/buildctl /usr/bin/buildctl
+COPY --from=proot /tmp/proot/src/proot /usr/bin/proot
 COPY ./scripts/* /usr/bin/
