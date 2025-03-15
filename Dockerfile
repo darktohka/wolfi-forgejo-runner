@@ -43,7 +43,7 @@ RUN \
 FROM chainguard/wolfi-base AS ocitool
 
 RUN \
-  apk add rustc cargo curl \
+  apk add rust curl \
   && cd /tmp \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
