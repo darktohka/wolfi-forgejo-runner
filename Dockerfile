@@ -33,10 +33,22 @@ RUN \
   && ar rcs /usr/local/lib/libtalloc.a bin/default/talloc*.o \
   && cp -f talloc.h /usr/local/include \
   && cp bin/default/talloc.pc /usr/lib/pkgconfig/ \
+  && cd /tmp \
+  && rm -rf talloc-* \
   && git clone https://github.com/darktohka/proot \
   && cd proot \
   && make -C src loader.elf loader-m32.elf build.h \
   && make -C src proot
+
+FROM chainguard/wolfi-base AS ocitool
+
+RUN \
+  apk add rustc cargo curl \
+  && cd /tmp \
+  && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
+  && mv ocitool-* ocitool \
+  && cd ocitool \
+  && cargo build --release
 
 FROM chainguard/wolfi-base
 
@@ -50,4 +62,5 @@ RUN \
 
 COPY --from=buildctl /tmp/buildkit/buildctl /usr/bin/buildctl
 COPY --from=proot /tmp/proot/src/proot /usr/bin/proot
+COPY --from=ocitool /tmp/ocitool/target/release/ocitool /usr/bin/ocitool
 COPY ./scripts/* /usr/bin/
