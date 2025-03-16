@@ -37,7 +37,7 @@ RUN \
   && rm -rf talloc-* \
   && git clone https://github.com/darktohka/proot \
   && cd proot \
-  && make -C src loader.elf loader-m32.elf build.h \
+  && make -C src loader.elf build.h \
   && make -C src proot
 
 FROM chainguard/wolfi-base AS ocitool
