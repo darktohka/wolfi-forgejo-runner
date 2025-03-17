@@ -54,23 +54,22 @@ RUN \
   else \
   export RUSTTARGET="x86_64-unknown-linux-gnu"; \
   fi \
-  && apk add bash curl rustup podman conmon crun \
+  && apk add bash curl rustup \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
+  && rustup target add $RUSTTARGET \
   && rustup toolchain install stable \
-  && curl -SsL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
-  && cargo binstall cross \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
   && cd ocitool \
-  && RUSTFLAGS="-C target-feature=+crt-static" ~/.cargo/bin/cross build --profile release-lto --target "$RUSTTARGET" \
+  && cargo build --profile release-lto --target "$RUSTTARGET" \
   && mv target/$RUSTTARGET/release/ocitool /tmp/binaries/ocitool \
   && cd /tmp \
   && rm -rf ocitool \
   && curl -SsL https://github.com/darktohka/knock-rs/archive/refs/heads/master.tar.gz | tar -xz \
   && mv knock-rs-* knock-rs \
   && cd knock-rs \
-  && RUSTFLAGS="-C target-feature=+crt-static" ~/.cargo/bin/cross build --profile release-lto --bin knock --target "$RUSTTARGET" \  
+  && cargo build --profile release-lto --bin knock --target "$RUSTTARGET" \
   && mv target/$RUSTTARGET/release/knock /tmp/binaries/knock \
   && cd /tmp \
   && rm -rf knock-rs
