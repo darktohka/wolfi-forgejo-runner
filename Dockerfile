@@ -40,7 +40,7 @@ RUN \
   && make -C src loader.elf build.h \
   && make -C src proot
 
-FROM chainguard/wolfi-base AS ocitool
+FROM chainguard/wolfi-base AS rust
 
 RUN \
   apk add rust curl clang \
@@ -48,7 +48,12 @@ RUN \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
   && cd ocitool \
-  && cargo build --release
+  && cargo build --release \
+  && cd /tmp \
+  && curl -SsL https://github.com/darktohka/knock-rs/archive/refs/heads/master.tar.gz | tar -xz \
+  && mv knock-rs-* knock-rs \
+  && cd knock-rs \
+  && cargo build --release --bin knock
 
 FROM chainguard/wolfi-base
 
@@ -62,5 +67,6 @@ RUN \
 
 COPY --from=buildctl /tmp/buildkit/buildctl /usr/bin/buildctl
 COPY --from=proot /tmp/proot/src/proot /usr/bin/proot
-COPY --from=ocitool /tmp/ocitool/target/release/ocitool /usr/bin/ocitool
+COPY --from=rust /tmp/ocitool/target/release/ocitool /usr/bin/ocitool
+COPY --from=rust /tmp/knock-rs/target/release/knock /usr/bin/knock
 COPY ./scripts/* /usr/bin/
