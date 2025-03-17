@@ -57,9 +57,9 @@ RUN \
   apk add bash curl rustup \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
-  && curl -SsL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
   && rustup toolchain install stable \
-  && ~/.cargo/bin/cargo-binstall cross \
+  && curl -SsL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
+  && cargo binstall cross \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
   && cd ocitool \
