@@ -44,7 +44,7 @@ FROM chainguard/wolfi-base AS rust
 
 ARG TARGETPLATFORM
 
-ENV PATH="/root/.cargo/bin:$PATH"
+ENV PATH="/root/.cargo/bin:/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:$PATH"
 
 RUN \
   if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
@@ -53,15 +53,13 @@ RUN \
   export RUSTTARGET="armv7-unknown-linux-gnueabihf"; \
   else \
   export RUSTTARGET="x86_64-unknown-linux-gnu"; \
-  fi && \
-  apk add bash curl rustup \
+  fi \
+  && apk add bash curl rustup podman \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
   && rustup toolchain install stable \
-  && curl -SsL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-
-RUN \
-  cargo binstall cross \
+  && curl -SsL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
+  && cargo binstall cross \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
   && cd ocitool \
