@@ -44,7 +44,7 @@ FROM --platform=$BUILDPLATFORM chainguard/wolfi-base AS rust
 
 ARG TARGETPLATFORM
 
-ENV PATH="/root/.cargo/bin:/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:$PATH"
+ENV PATH="/root/.cargo/bin:/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:/root/.rustup/toolchains/stable-aarch64-unknown-linux-gnu/bin:$PATH"
 
 RUN \
   if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
@@ -60,7 +60,6 @@ RUN \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
   && rustup default stable \
-  && rustup target add x86_64-unknown-linux-gnu \
   && rustup target add $RUSTTARGET \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
