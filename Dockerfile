@@ -55,6 +55,8 @@ RUN \
   export RUSTTARGET="x86_64-unknown-linux-gnu"; \
   fi \
   && apk add bash curl clang rustup \
+  && ln -s /usr/bin/clang /usr/bin/aarch64-linux-gnu-gcc \
+  && ln -s /usr/bin/ld /usr/bin/aarch64-linux-gnu-ld \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
   && rustup default stable \
