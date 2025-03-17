@@ -54,7 +54,7 @@ RUN \
   else \
   export RUSTTARGET="x86_64-unknown-linux-gnu"; \
   fi \
-  && apk add bash curl rustup \
+  && apk add bash curl clang rustup \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
   && rustup default stable \
