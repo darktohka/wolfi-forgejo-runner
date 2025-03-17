@@ -40,7 +40,7 @@ RUN \
   && make -C src loader.elf build.h \
   && make -C src proot
 
-FROM chainguard/wolfi-base AS rust
+FROM --platform=$BUILDPLATFORM chainguard/wolfi-base AS rust
 
 ARG TARGETPLATFORM
 
