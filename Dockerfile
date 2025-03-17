@@ -58,6 +58,7 @@ RUN \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
   && rustup default stable \
+  && rustup target add x86_64-unknown-linux-gnu \
   && rustup target add $RUSTTARGET \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
