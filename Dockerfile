@@ -42,18 +42,35 @@ RUN \
 
 FROM chainguard/wolfi-base AS rust
 
+ARG TARGETPLATFORM
+
 RUN \
+  if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+  export RUSTTARGET="aarch64-unknown-linux-gnu"; \
+  elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
+  export RUSTTARGET="armv7-unknown-linux-gnueabihf"; \
+  else \
+  export RUSTTARGET="x86_64-unknown-linux-gnu"; \
+  fi && \
   apk add rust curl clang \
   && cd /tmp \
+  && mkdir -p /tmp/binaries \
+  && curl -SsL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
+  && cargo binstall cross \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
   && cd ocitool \
-  && cargo build --release \
+  && RUSTFLAGS="-C target-feature=+crt-static" ~/.cargo/bin/cross build --profile release-lto --target "$RUSTTARGET" \
+  && mv target/$RUSTTARGET/release/ocitool /tmp/binaries/ocitool \
   && cd /tmp \
+  && rm -rf ocitool \
   && curl -SsL https://github.com/darktohka/knock-rs/archive/refs/heads/master.tar.gz | tar -xz \
   && mv knock-rs-* knock-rs \
   && cd knock-rs \
-  && cargo build --release --bin knock
+  && RUSTFLAGS="-C target-feature=+crt-static" ~/.cargo/bin/cross build --profile release-lto --bin knock --target "$RUSTTARGET" \  
+  && mv target/$RUSTTARGET/release/knock /tmp/binaries/knock \
+  && cd /tmp \
+  && rm -rf knock-rs
 
 FROM chainguard/wolfi-base
 
@@ -67,6 +84,5 @@ RUN \
 
 COPY --from=buildctl /tmp/buildkit/buildctl /usr/bin/buildctl
 COPY --from=proot /tmp/proot/src/proot /usr/bin/proot
-COPY --from=rust /tmp/ocitool/target/release/ocitool /usr/bin/ocitool
-COPY --from=rust /tmp/knock-rs/target/release/knock /usr/bin/knock
+COPY --from=rust /tmp/binaries/* /usr/bin/
 COPY ./scripts/* /usr/bin/
