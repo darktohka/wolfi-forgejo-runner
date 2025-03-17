@@ -57,8 +57,8 @@ RUN \
   && apk add bash curl rustup \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
-  && rustup target add $RUSTTARGET \
   && rustup toolchain install stable \
+  && rustup target add $RUSTTARGET \
   && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
   && mv ocitool-* ocitool \
   && cd ocitool \
