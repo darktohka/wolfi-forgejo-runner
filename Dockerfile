@@ -52,7 +52,7 @@ RUN \
   else \
   export RUSTTARGET="x86_64-unknown-linux-gnu"; \
   fi && \
-  apk add bash rust curl clang \
+  apk add bash curl clang rustup \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
   && curl -SsL https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash \
