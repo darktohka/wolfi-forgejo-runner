@@ -54,7 +54,7 @@ RUN \
   else \
   export RUSTTARGET="x86_64-unknown-linux-gnu"; \
   fi \
-  && apk add bash curl rustup podman conmon \
+  && apk add bash curl rustup podman conmon crun \
   && cd /tmp \
   && mkdir -p /tmp/binaries \
   && rustup toolchain install stable \
