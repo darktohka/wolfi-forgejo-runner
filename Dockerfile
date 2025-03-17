@@ -63,14 +63,14 @@ RUN \
   && mv ocitool-* ocitool \
   && cd ocitool \
   && cargo build --profile release-lto --target "$RUSTTARGET" \
-  && mv target/$RUSTTARGET/release/ocitool /tmp/binaries/ocitool \
+  && mv target/release-lto/release/ocitool /tmp/binaries/ocitool \
   && cd /tmp \
   && rm -rf ocitool \
   && curl -SsL https://github.com/darktohka/knock-rs/archive/refs/heads/master.tar.gz | tar -xz \
   && mv knock-rs-* knock-rs \
   && cd knock-rs \
   && cargo build --profile release-lto --bin knock --target "$RUSTTARGET" \
-  && mv target/$RUSTTARGET/release/knock /tmp/binaries/knock \
+  && mv target/release-lto/release/knock /tmp/binaries/knock \
   && cd /tmp \
   && rm -rf knock-rs
 
