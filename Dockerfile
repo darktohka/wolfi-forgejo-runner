@@ -40,46 +40,21 @@ RUN \
   && make -C src loader.elf build.h \
   && make -C src proot
 
-FROM --platform=$BUILDPLATFORM chainguard/wolfi-base AS rust
-
-ARG TARGETPLATFORM
-
-ENV PATH="/root/.cargo/bin:/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:/root/.rustup/toolchains/stable-aarch64-unknown-linux-gnu/bin:$PATH"
-
-RUN \
-  if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
-  export RUSTTARGET="aarch64-unknown-linux-gnu"; \
-  elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
-  export RUSTTARGET="armv7-unknown-linux-gnueabihf"; \
-  else \
-  export RUSTTARGET="x86_64-unknown-linux-gnu"; \
-  fi \
-  && apk add bash curl clang rustup \
-  && ln -s /usr/bin/clang /usr/bin/aarch64-linux-gnu-gcc \
-  && ln -s /usr/bin/ld /usr/bin/aarch64-linux-gnu-ld \
-  && cd /tmp \
-  && mkdir -p /tmp/binaries \
-  && rustup default stable \
-  && rustup target add $RUSTTARGET \
-  && curl -SsL https://github.com/darktohka/ocitool/archive/refs/heads/master.tar.gz | tar -xz \
-  && mv ocitool-* ocitool \
-  && cd ocitool \
-  && cargo build --profile release-lto --target "$RUSTTARGET" \
-  && mv target/$RUSTTARGET/release-lto/ocitool /tmp/binaries/ocitool \
-  && cd /tmp \
-  && rm -rf ocitool \
-  && curl -SsL https://github.com/darktohka/knock-rs/archive/refs/heads/master.tar.gz | tar -xz \
-  && mv knock-rs-* knock-rs \
-  && cd knock-rs \
-  && cargo build --profile release-lto --bin knock --target "$RUSTTARGET" \
-  && mv target/$RUSTTARGET/release-lto/knock /tmp/binaries/knock \
-  && cd /tmp \
-  && rm -rf knock-rs
-
 FROM chainguard/wolfi-base
 
 RUN \
+  if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+  export BINARCH="aarch64"; \
+  elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then \
+  export BINARCH="armv7l"; \
+  else \
+  export BINARCH="x86_64"; \
+  fi && \
   apk add bash ca-certificates curl git openssh-client procps nodejs-22 jq && \
+  for binary in ocitool knock; do \
+    curl -SsL https://bin.tohka.us/$binary-$BINARCH -o /usr/bin/$binary && \
+    chmod +x /usr/bin/$binary; \
+  done && \
   NODE_VERSION=$(apk list -I nodejs-22 | cut -d'-' -f3) && \
   NODE_ALT_VERSIONS="20.18.3 18.20.6 16.20.2" && \
   mkdir -p /opt/acttoolcache/node/${NODE_VERSION}/x64/bin && \
@@ -88,5 +63,4 @@ RUN \
 
 COPY --from=buildctl /tmp/buildkit/buildctl /usr/bin/buildctl
 COPY --from=proot /tmp/proot/src/proot /usr/bin/proot
-COPY --from=rust /tmp/binaries/* /usr/bin/
 COPY ./scripts/* /usr/bin/
