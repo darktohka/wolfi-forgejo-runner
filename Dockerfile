@@ -42,6 +42,8 @@ RUN \
 
 FROM chainguard/wolfi-base
 
+ARG TARGETPLATFORM
+
 RUN \
   if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
   export BINARCH="aarch64"; \
