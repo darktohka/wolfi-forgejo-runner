@@ -52,13 +52,13 @@ RUN \
   else \
   export BINARCH="x86_64"; \
   fi && \
-  apk add bash ca-certificates curl git openssh-client procps nodejs-22 jq && \
+  apk add bash ca-certificates curl git openssh-client procps nodejs-24 jq && \
   for binary in ocitool knock; do \
     curl -SsL https://bin.tohka.us/$binary-$BINARCH -o /usr/bin/$binary && \
     chmod +x /usr/bin/$binary; \
   done && \
-  NODE_VERSION=$(apk list -I nodejs-22 | cut -d'-' -f3) && \
-  NODE_ALT_VERSIONS="20.18.3 18.20.6 16.20.2" && \
+  NODE_VERSION=$(apk list -I nodejs-24 | cut -d'-' -f3) && \
+  NODE_ALT_VERSIONS="24.6.0 22.18.0 20.19.4 18.20.8 16.20.2" && \
   mkdir -p /opt/acttoolcache/node/${NODE_VERSION}/x64/bin && \
   ln -s $(which node) /opt/acttoolcache/node/${NODE_VERSION}/x64/bin/node && \
   for version in $NODE_ALT_VERSIONS; do ln -s /opt/acttoolcache/node/${NODE_VERSION} /opt/acttoolcache/node/${version}; done
