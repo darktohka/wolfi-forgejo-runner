@@ -35,7 +35,7 @@ RUN \
   && cp bin/default/talloc.pc /usr/lib/pkgconfig/ \
   && cd /tmp \
   && rm -rf talloc-* \
-  && git clone https://github.com/darktohka/proot \
+  && git clone https://github.com/proot-me/proot \
   && cd proot \
   && make -C src loader.elf build.h \
   && make -C src proot
