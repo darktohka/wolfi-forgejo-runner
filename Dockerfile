@@ -37,6 +37,7 @@ RUN \
   && rm -rf talloc-* \
   && git clone https://github.com/proot-me/proot \
   && cd proot \
+  && sed -i 's|#include "tracee/reg.h"|#include "tracee/reg.h"\n#include "tracee/mem.h"|' src/tracee/tracee.c \
   && make -C src loader.elf build.h \
   && make -C src proot
 
